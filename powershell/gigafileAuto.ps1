@@ -14,6 +14,13 @@ function Main($args)
     #
     # $encode = [System.Text.Encoding]::default
 
+    # Alertを出すためにFormsクラスの有効化
+    # add-type -assembly system.windows.Forms
+
+    $dll_info = '[DllImport("user32.dll")] public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);'
+    Add-Type -MemberDefinition $dll_info -Name NativeMethods -Namespace Win32
+    [Win32.NativeMethods]::ShowWindowAsync($ie.HWND, 3) | Out-Null
+
     # HWND
     $hwnd = $ie.HWND
 
@@ -69,10 +76,20 @@ function Main($args)
                 $select_btn.click()
             }
 
-            $file_url = [System.__ComObject].InvokeMember("getElementByClassName",[System.Reflection.BindingFlags]::InvokeMethod, $null, $doc, @("file_info_url"))
+            $file_url = [System.__ComObject].InvokeMember("getElementsByClassName",[System.Reflection.BindingFlags]::InvokeMethod, $null, $doc, @("file_info_url url"))
             if ($file_url -ne $null)
             {
-                echo $file_url.value > a.txt
+                # echo $file_url[0].value > sample.txt
+                # alert("file_url[0]")
+                # [System.Windows.Forms.MessageBox]::Show($file_url[0].value)
+            }
+
+            $term_value = [System.__ComObject].InvokeMember("getElementsByClassName",[System.Reflection.BindingFlags]::InvokeMethod, $null, $doc, @("download_term_value"))
+            if ($term_value -ne $null)
+            {
+                # echo $term_value[0].innerText > sample.txt
+                # alert($term_value[0])
+                # [System.Windows.Forms.MessageBox]::Show($term_value[0].innnerText)
             }
 
             # Webページの読み込みが終わるまで待機する
